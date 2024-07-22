@@ -20,6 +20,7 @@ public class EmployeeController {
 
     @PostMapping("/addBook")
     public ResponseEntity<?> addBook(@RequestParam String title, @RequestParam String author, @RequestParam Long publisherId) {
+        // Find the publisher by ID
         Optional<Publisher> optionalPublisher = publisherRepository.findById(publisherId);
 
         if (optionalPublisher.isEmpty()) {
@@ -27,6 +28,8 @@ public class EmployeeController {
         }
 
         Publisher publisher = optionalPublisher.get();
+
+        // Create and save the book
         Book book = new Book();
         book.setTitle(title);
         book.setAuthor(author);
@@ -34,5 +37,16 @@ public class EmployeeController {
         bookRepository.save(book);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(book);
+    }
+
+    @DeleteMapping("/deleteBook/{id}")
+    public ResponseEntity<?> deleteBook(@PathVariable Long id) {
+        Optional<Book> optionalBook = bookRepository.findById(id);
+        if (optionalBook.isPresent()) {
+            bookRepository.deleteById(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Book not found");
+        }
     }
 }
